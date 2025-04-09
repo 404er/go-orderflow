@@ -2,9 +2,9 @@ package footprint
 
 import (
 	"strconv"
+	"time"
 
 	"github.com/google/uuid"
-	"github.com/gookit/goutil/timex"
 	"github.com/shopspring/decimal"
 )
 
@@ -15,16 +15,18 @@ type OrderFlowAggregator struct {
 }
 
 func (o *OrderFlowAggregator) createNewCandle() {
-	openTimeMs := timex.Now()
-	openTime := openTimeMs.Format("Y-m-d H:I:S")
-	closeTimeMs := getNextMinuteTimestamp(openTimeMs.Timestamp())
-	closeTime := timex.FromUnix(closeTimeMs).Format("Y-m-d H:I:S")
+	now := time.Now().UnixMilli()
 
-	candle := FootprintCandle{
+	openTimeMs := now
+	openTime := time.UnixMilli(openTimeMs).Format("2006/01/02 15:04:05.000")
+	closeTimeMs := getNextMinuteTimestamp(openTimeMs) - 1
+	closeTime := time.UnixMilli(closeTimeMs).Format("2006/01/02 15:04:05.000")
+
+	candle := &FootprintCandle{
 		UUID:        uuid.New(),
 		OpenTime:    openTime,
 		CloseTime:   closeTime,
-		OpenTimeMs:  openTimeMs.Timestamp(),
+		OpenTimeMs:  openTimeMs,
 		CloseTimeMs: closeTimeMs,
 		Interval:    o.Interval,
 		Symbol:      o.Symbol,
@@ -39,10 +41,14 @@ func (o *OrderFlowAggregator) createNewCandle() {
 		Close:       0,
 		PriceLevels: PriceLevelsMap{},
 	}
-	o.ActiveCandle = &candle
+	o.ActiveCandle = candle
 }
 
-func (o *OrderFlowAggregator) ProcessCloseCandle() {}
+func (o *OrderFlowAggregator) ProcessCloseCandle() *FootprintCandle {
+	candle := o.ActiveCandle
+	o.ActiveCandle = nil
+	return candle
+}
 
 func (o *OrderFlowAggregator) ProcessNewAggTrade(symbol string, isBuyerMaker bool, quantity string, price string) {
 	if o.ActiveCandle == nil {
@@ -53,18 +59,20 @@ func (o *OrderFlowAggregator) ProcessNewAggTrade(symbol string, isBuyerMaker boo
 	quantityFloat, _ := strconv.ParseFloat(quantity, 64)
 
 	precisionPrice := decimal.NewFromFloat(priceFloat).Round(2)
+	precisionPriceStr := precisionPrice.String()
 
-	if _, exists := o.ActiveCandle.PriceLevels[precisionPrice.String()]; !exists {
-		o.ActiveCandle.PriceLevels[precisionPrice.String()] = PriceLevel{
+	if _, exists := o.ActiveCandle.PriceLevels[precisionPriceStr]; !exists {
+		o.ActiveCandle.PriceLevels[precisionPriceStr] = PriceLevel{
 			VolSumAsk: 0,
 			VolSumBid: 0,
 		}
 	}
 
-	priceLevel := o.ActiveCandle.PriceLevels[precisionPrice.String()]
+	priceLevel := o.ActiveCandle.PriceLevels[precisionPriceStr]
 
 	if o.ActiveCandle.Volume == 0 {
 		o.ActiveCandle.Open = priceFloat
+		o.ActiveCandle.Low = priceFloat
 	}
 	o.ActiveCandle.Volume += quantityFloat
 
@@ -77,7 +85,7 @@ func (o *OrderFlowAggregator) ProcessNewAggTrade(symbol string, isBuyerMaker boo
 		o.ActiveCandle.AggBid += quantityFloat
 		priceLevel.VolSumAsk += quantityFloat
 	}
-	o.ActiveCandle.PriceLevels[precisionPrice.String()] = priceLevel
+	o.ActiveCandle.PriceLevels[precisionPriceStr] = priceLevel
 
 	if priceFloat > o.ActiveCandle.High {
 		o.ActiveCandle.High = priceFloat
@@ -86,11 +94,12 @@ func (o *OrderFlowAggregator) ProcessNewAggTrade(symbol string, isBuyerMaker boo
 	if priceFloat < o.ActiveCandle.Low {
 		o.ActiveCandle.Low = priceFloat
 	}
-	// todo close candle if time is up
+	o.ActiveCandle.Close = priceFloat
+
 }
 
 func getNextMinuteTimestamp(timestamp int64) int64 {
-	minute := timestamp / 60
-	nextMinute := (minute + 1) * 60
+	minute := timestamp / 60000
+	nextMinute := (minute + 1) * 60000
 	return nextMinute
 }
