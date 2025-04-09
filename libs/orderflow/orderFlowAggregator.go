@@ -19,7 +19,7 @@ func (o *OrderFlowAggregator) createNewCandle() {
 
 	openTimeMs := now
 	openTime := time.UnixMilli(openTimeMs).Format("2006/01/02 15:04:05.000")
-	closeTimeMs := getNextMinuteTimestamp(openTimeMs) - 1
+	closeTimeMs := getNextMinuteTimestamp(openTimeMs)
 	closeTime := time.UnixMilli(closeTimeMs).Format("2006/01/02 15:04:05.000")
 
 	candle := &FootprintCandle{

@@ -37,6 +37,5 @@ func (q *CandleQuene) Save() {
 		return
 	}
 	BatchSaveFootprintCandles(q.Candles)
-	q.Candles = nil
 	q.Candles = []orderflow.FootprintCandle{}
 }
