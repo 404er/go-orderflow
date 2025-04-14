@@ -5,12 +5,8 @@ import (
 	"log"
 	"orderFlow/libs/shared"
 
-	database "orderFlow/libs/database"
-
 	binance_connector "github.com/binance/binance-connector-go"
 )
-
-var CandleQuene = database.GetCandleQueneInstance()
 
 func InitBinanceWs() {
 	websocketStreamClient := binance_connector.NewWebsocketStreamClient(true)
@@ -30,5 +26,5 @@ func InitBinanceWs() {
 
 func processAggTrade(event *binance_connector.WsAggTradeEvent) {
 	aggr := shared.GetAggregator(event.Symbol)
-	aggr.ProcessNewAggTrade(event.Symbol, event.IsBuyerMaker, event.Quantity, event.Price)
+	aggr.ProcessNewAggTrade(event.Symbol, event.IsBuyerMaker, event.Quantity, event.Price, 0)
 }

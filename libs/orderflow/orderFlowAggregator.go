@@ -14,9 +14,13 @@ type OrderFlowAggregator struct {
 	ActiveCandle *FootprintCandle
 }
 
-func (o *OrderFlowAggregator) createNewCandle() {
-	now := time.Now().UnixMilli()
-
+func (o *OrderFlowAggregator) createNewCandle(startTime int64) {
+	var now int64
+	if startTime == 0 {
+		now = time.Now().UnixMilli()
+	} else {
+		now = startTime
+	}
 	openTimeMs := now
 	openTime := time.UnixMilli(openTimeMs).Format("2006/01/02 15:04:05.000")
 	closeTimeMs := getNextMinuteTimestamp(openTimeMs)
@@ -50,9 +54,9 @@ func (o *OrderFlowAggregator) ProcessCloseCandle() *FootprintCandle {
 	return candle
 }
 
-func (o *OrderFlowAggregator) ProcessNewAggTrade(symbol string, isBuyerMaker bool, quantity string, price string) {
+func (o *OrderFlowAggregator) ProcessNewAggTrade(symbol string, isBuyerMaker bool, quantity string, price string, startTime int64) {
 	if o.ActiveCandle == nil {
-		o.createNewCandle()
+		o.createNewCandle(startTime)
 	}
 
 	priceFloat, _ := strconv.ParseFloat(price, 64)

@@ -7,12 +7,15 @@ import (
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var DB *gorm.DB
 
 func InitDatabaseClient() {
-	db, err := gorm.Open(postgres.Open(shared.DB_URL), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(shared.DB_URL), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Error),
+	})
 	if err != nil {
 		panic(err)
 	}
