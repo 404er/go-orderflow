@@ -33,24 +33,22 @@ func (p *PriceLevelsMap) Scan(value interface{}) error {
 }
 
 type FootprintCandle struct {
-	ID          int            `json:"id" gorm:"primaryKey"`
-	UUID        uuid.UUID      `json:"uuid" gorm:"column:uuid"`
+	UUID        uuid.UUID      `json:"uuid" gorm:"primaryKey;type:uuid"`
 	OpenTime    string         `json:"openTime" gorm:"column:openTime;type:timestamptz"`
 	CloseTime   string         `json:"closeTime" gorm:"column:closeTime;type:timestamptz"`
-	OpenTimeMs  int64          `json:"openTimeMs" gorm:"column:openTimeMs;type:bigint"`
-	CloseTimeMs int64          `json:"closeTimeMs" gorm:"column:closeTimeMs;type:bigint"`
+	OpenTimeMs  int64          `json:"openTimeMs" gorm:"column:openTimeMs"`
+	CloseTimeMs int64          `json:"closeTimeMs" gorm:"column:closeTimeMs"`
 	Interval    string         `json:"interval" gorm:"column:interval"`
-	Symbol      string         `json:"symbol" gorm:"column:symbol"`
-	VolumeDelta float64        `json:"volumeDelta" gorm:"column:volumeDelta;type:double precision"`
-	Volume      float64        `json:"volume" gorm:"column:volume;type:double precision"`
-	AggBid      float64        `json:"aggBid" gorm:"column:aggBid;type:double precision default 0"`
-	AggAsk      float64        `json:"aggAsk" gorm:"column:aggAsk;type:double precision default 0"`
-	AggTickSize int64          `json:"aggTickSize" gorm:"column:aggTickSize"`
-	Open        float64        `json:"open" gorm:"column:open;type:double precision"`
-	High        float64        `json:"high" gorm:"column:high;type:double precision"`
-	Low         float64        `json:"low" gorm:"column:low;type:double precision"`
-	Close       float64        `json:"close" gorm:"column:close;type:double precision"`
-	PriceLevels PriceLevelsMap `json:"priceLevels" gorm:"column:priceLevels;type:jsonb"` // 使用PostgreSQL的JSONB类型
+	Symbol      string         `json:"symbol" gorm:"column:symbol;index"`
+	Delta       float64        `json:"delta" gorm:"column:delta"`
+	Volume      float64        `json:"volume" gorm:"column:volume"`
+	AggBid      float64        `json:"aggBid" gorm:"column:aggBid"`
+	AggAsk      float64        `json:"aggAsk" gorm:"column:aggAsk"`
+	Open        float64        `json:"open" gorm:"column:open"`
+	High        float64        `json:"high" gorm:"column:high"`
+	Low         float64        `json:"low" gorm:"column:low"`
+	Close       float64        `json:"close" gorm:"column:close"`
+	PriceLevels PriceLevelsMap `json:"priceLevels" gorm:"column:priceLevels;type:jsonb"`
 }
 
 func (FootprintCandle) TableName() string {

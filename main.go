@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"orderFlow/binanceApp"
+	"orderFlow/libs/api"
 	"orderFlow/libs/cron"
 	"orderFlow/libs/database"
 	"orderFlow/libs/shared"
@@ -21,6 +22,7 @@ func main() {
 	database.InitDatabaseClient()
 	if len(os.Args) == 1 {
 		cron.RunTask()
+		api.InitApi()
 		binanceApp.InitBinanceWs()
 	} else {
 		binanceApp.Backfill(s, start, end)

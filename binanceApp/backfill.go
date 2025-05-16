@@ -95,12 +95,12 @@ func processCsvFile(csvFilePath string, symbol string) []*binance_connector.WsAg
 				return tb
 			}(cra[i][6]),
 		}
-		agg := shared.GetAggregator(event.Symbol)
+		agg := shared.GetAggregator(event.Symbol, "1m")
 		if agg.ActiveCandle != nil && event.TradeTime > agg.ActiveCandle.CloseTimeMs {
 			candle := agg.ProcessCloseCandle()
 			quene := database.GetCandleQueneInstance()
 			quene.AddCandle(candle)
-			delete(shared.Aggregators, event.Symbol)
+			delete(shared.Aggregators, event.Symbol+"_1m")
 		}
 		agg.ProcessNewAggTrade(event.Symbol, event.IsBuyerMaker, event.Quantity, event.Price, event.TradeTime)
 	}

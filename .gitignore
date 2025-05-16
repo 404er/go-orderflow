@@ -7,7 +7,7 @@
 *.dll
 *.so
 *.dylib
-
+backfillData/*
 # Test binary, built with `go test -c`
 *.test
 
