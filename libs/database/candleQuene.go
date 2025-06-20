@@ -1,7 +1,9 @@
 package database
 
 import (
+	"log"
 	orderflow "orderFlow/libs/orderflow"
+	shared "orderFlow/libs/shared"
 	"sync"
 )
 
@@ -36,6 +38,10 @@ func (q *CandleQuene) Save() {
 	if len(q.Candles) == 0 {
 		return
 	}
-	BatchSaveFootprintCandles(q.Candles)
+	if !shared.IS_TEST {
+		BatchSaveFootprintCandles(q.Candles)
+	} else {
+		log.Println("test mode, not saving candles")
+	}
 	q.Candles = []orderflow.FootprintCandle{}
 }

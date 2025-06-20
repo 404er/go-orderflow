@@ -3,7 +3,7 @@ package api
 import (
 	"log"
 	orderflow "orderFlow/libs/orderflow"
-	"orderFlow/libs/shared"
+	shared "orderFlow/libs/shared"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -19,6 +19,7 @@ func InitApi() {
 		apiGroup := router.Group("/api")
 		apiGroup.GET("/footprint/activeCandles", GetActiveCandles)
 		apiGroup.GET("/footprint/candles", GetFootprintCandles)
+		apiGroup.GET("/ws", SocketHandler)
 		log.Println("API server started on port ", shared.API_PORT)
 		router.Run(":" + shared.API_PORT)
 	}()

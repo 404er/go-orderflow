@@ -31,7 +31,7 @@ func InitBinanceWs() {
 			doneCh, stopCh, err := websocketStreamClient.WsCombinedAggTradeServe(shared.SYMBOLS, wsAggTradeHandler, errHandler)
 
 			if err != nil {
-				log.Printf("WebSocket connection error: %v, retrying in 2 seconds...", err)
+				log.Printf("Binance WebSocket connection error: %v, retrying in 2 seconds...", err)
 				select {
 				case <-quit:
 					log.Println("Received exit signal, exiting...")

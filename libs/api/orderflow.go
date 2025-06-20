@@ -4,6 +4,7 @@ import (
 	"math"
 	"orderFlow/libs/database"
 	orderflow "orderFlow/libs/orderflow"
+	"orderFlow/libs/shared"
 	"strconv"
 	"strings"
 	"time"
@@ -26,6 +27,10 @@ func GetFootprintCandlesService(symbol, interval, stepSize string) []orderflow.F
 		return nil
 	}
 	candles := database.GetCandles(symbol, interval, start, end)
+	newCandle := shared.GetActiveCandles(symbol, interval)
+	if newCandle != nil {
+		candles = append(candles, *newCandle)
+	}
 	parseCandles(&candles, stepSize)
 	return candles
 }
@@ -82,7 +87,7 @@ func parseStepSize(priceLevels *orderflow.PriceLevelsMap, step float64) {
 		} else if priceLevel.VolSumAsk < 1 && priceLevel.VolSumAsk > 0.01 {
 			// 保留1位小数 - 使用 decimal 包确保精度
 			askDecimal := decimal.NewFromFloat(priceLevel.VolSumAsk)
-			askDecimal = askDecimal.Round(1) // 保留1位小数
+			askDecimal = askDecimal.Round(1)
 			newVolSumAsk, _ = askDecimal.Float64()
 		} else {
 			// 保留整数部分
@@ -94,9 +99,8 @@ func parseStepSize(priceLevels *orderflow.PriceLevelsMap, step float64) {
 		if priceLevel.VolSumBid < 0.01 {
 			newVolSumBid = 0
 		} else if priceLevel.VolSumBid < 1 && priceLevel.VolSumBid > 0.01 {
-			// 保留1位小数 - 使用 decimal 包确保精度
 			bidDecimal := decimal.NewFromFloat(priceLevel.VolSumBid)
-			bidDecimal = bidDecimal.Round(1) // 保留1位小数
+			bidDecimal = bidDecimal.Round(1)
 			newVolSumBid, _ = bidDecimal.Float64()
 		} else {
 			// 保留整数部分

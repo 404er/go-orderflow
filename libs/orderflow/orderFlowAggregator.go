@@ -89,13 +89,14 @@ func (o *OrderFlowAggregator) ProcessNewAggTrade(symbol string, isBuyerMaker boo
 	o.ActiveCandle.Volume += quantityFloat
 
 	if isBuyerMaker {
+		// 买方是否是做市方。如true，则此次成交是一个主动卖出单，否则是一个主动买入单。
 		o.ActiveCandle.Delta -= quantityFloat
 		o.ActiveCandle.AggAsk += quantityFloat
-		priceLevel.VolSumBid += quantityFloat
+		priceLevel.VolSumAsk += quantityFloat
 	} else {
 		o.ActiveCandle.Delta += quantityFloat
 		o.ActiveCandle.AggBid += quantityFloat
-		priceLevel.VolSumAsk += quantityFloat
+		priceLevel.VolSumBid += quantityFloat
 	}
 	o.ActiveCandle.PriceLevels[precisionPriceStr] = priceLevel
 
